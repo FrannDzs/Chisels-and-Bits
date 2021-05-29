@@ -8,8 +8,9 @@ import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
 import net.minecraft.resources.IResourceManager;
 import net.minecraftforge.client.model.IModelLoader;
 import net.minecraftforge.client.model.geometry.IModelGeometry;
+import org.jetbrains.annotations.NotNull;
 
-public final class ChiseledBlockModelLoader implements IModelLoader
+public final class ChiseledBlockModelLoader implements IModelLoader<ChiseledBlockModel>
 {
 
     private static final ChiseledBlockModelLoader INSTANCE = new ChiseledBlockModelLoader();
@@ -24,13 +25,13 @@ public final class ChiseledBlockModelLoader implements IModelLoader
     }
 
     @Override
-    public void onResourceManagerReload(final IResourceManager resourceManager)
+    public void onResourceManagerReload(@NotNull final IResourceManager resourceManager)
     {
         ChiselsAndBits.getInstance().clearCache();
     }
 
     @Override
-    public IModelGeometry read(final JsonDeserializationContext deserializationContext, final JsonObject modelContents)
+    public ChiseledBlockModel read(@NotNull final JsonDeserializationContext deserializationContext, @NotNull final JsonObject modelContents)
     {
         return new ChiseledBlockModel();
     }

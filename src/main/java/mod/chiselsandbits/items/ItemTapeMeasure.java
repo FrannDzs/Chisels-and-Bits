@@ -93,7 +93,7 @@ public class ItemTapeMeasure extends Item implements IChiselModeItem, IItemScrol
             final BlockRayTraceResult mop = context.getPlayer().getEntityWorld().rayTraceBlocks(rayTraceContext);
             if (mop.getType() == RayTraceResult.Type.BLOCK)
             {
-                final BitLocation loc = new BitLocation( mop, BitOperation.CHISEL );
+                final BitLocation loc = new BitLocation( mop, BitOperation.CHISEL, false );
                 ClientSide.instance.pointAt( ChiselToolType.TAPEMEASURE, loc, context.getHand() );
             }
             else

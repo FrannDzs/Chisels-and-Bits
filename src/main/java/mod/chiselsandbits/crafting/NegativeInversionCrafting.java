@@ -2,7 +2,6 @@ package mod.chiselsandbits.crafting;
 
 import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
-import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemNegativePrint;
 import mod.chiselsandbits.registry.ModItems;
@@ -92,7 +91,7 @@ public class NegativeInversionCrafting extends SpecialRecipe
 			tmp.setBlob( bestBlob );
 
 			final CompoundNBT comp = ModUtil.getTagCompound( targetA ).copy();
-			tmp.writeChisleData( comp, false );
+			tmp.writeChiselData( comp, false );
 
 			final ItemStack outputPattern = new ItemStack( targetA.getItem() );
 			outputPattern.setTag( comp );

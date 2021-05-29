@@ -154,7 +154,7 @@ public class BitAccess implements IBitAccess
 		c.setBlob( blob );
 
 		final CompoundNBT nbttagcompound = new CompoundNBT();
-		c.writeChisleData( nbttagcompound, crossWorld );
+		c.writeChiselData( nbttagcompound, crossWorld );
 
 		final ItemStack stack;
 

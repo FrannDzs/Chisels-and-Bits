@@ -66,7 +66,8 @@ public class BitLocation implements IBitLocation
 
 	public BitLocation(
 			final BlockRayTraceResult mop,
-			final BitOperation type )
+			final BitOperation type,
+            final boolean isAccurateSneakPlace)
 	{
 		final Vector3d hitVec = mop.getHitVec();
 		final Vector3d accuratePos = new Vector3d(
@@ -87,11 +88,11 @@ public class BitLocation implements IBitLocation
           (int) inBlockPosAccurate.getZ()
         );
         final Vector3i normalizedInBlockPos = new Vector3i(
-          snapToValid(inBlockPos.getX()),
-          snapToValid(inBlockPos.getY()),
-          snapToValid(inBlockPos.getZ())
+          inBlockPos.getX(),
+          inBlockPos.getY(),
+          inBlockPos.getZ()
         );
-        final Vector3i normalizedInBlockPosWithOffset = type.usePlacementOffset() ?
+        final Vector3i normalizedInBlockPosWithOffset = type.usePlacementOffset() && !isAccurateSneakPlace ?
                                                 normalizedInBlockPos.offset(mop.getFace(), 1) :
                                                 normalizedInBlockPos;
 

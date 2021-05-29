@@ -1,5 +1,6 @@
 package mod.chiselsandbits.chiseledblock.serialization;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -10,11 +11,11 @@ import net.minecraft.network.PacketBuffer;
 public class BlobSerializer
 {
 
-	private final int types;
+	private final int                   types;
 	private final Map<Integer, Integer> index; // deflate...
-	private final int[] palette; // inflate...
-	private final int bitsPerInt;
-	private final int bitsPerIntMinus1;
+	private final int[]                 palette; // inflate...
+	protected     int                   bitsPerInt;
+	protected     int                   bitsPerIntMinus1;
 
 	public BlobSerializer(
 			final VoxelBlob toDeflate )
@@ -52,6 +53,15 @@ public class BlobSerializer
 		bitsPerIntMinus1 = bitsPerInt - 1;
 	}
 
+    public BlobSerializer()
+    {
+        types = 0;
+        index = Collections.emptyMap();
+        palette = new int[0];
+        bitsPerInt = 0;
+        bitsPerIntMinus1 = 0;
+    }
+
 	public void write(
 			final PacketBuffer to )
 	{
@@ -87,7 +97,7 @@ public class BlobSerializer
 	int lastState = -1;
 	int lastIndex = -1;
 
-	private int getIndex(
+	protected int getIndex(
 			final int stateID )
 	{
 		if ( lastState == stateID )
@@ -99,15 +109,15 @@ public class BlobSerializer
 		return lastIndex = index.get( stateID );
 	}
 
-	private int getStateID(
-			final int indexID )
+	protected int getStateID(
+      final int indexID)
 	{
 		return palette[indexID];
 	}
 
 	public int getVersion()
 	{
-		return VoxelBlob.VERSION_COMPACT;
+		return 0;
 	}
 
 	/**

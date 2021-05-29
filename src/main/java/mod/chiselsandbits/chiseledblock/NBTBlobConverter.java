@@ -4,7 +4,6 @@ import mod.chiselsandbits.api.VoxelStats;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.chiseledblock.serialization.StringStates;
-import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.registry.ModBlocks;
 import net.minecraft.block.Block;
@@ -112,7 +111,7 @@ public class NBTBlobConverter
 		updateFromBlob();
 	}
 
-	public final void writeChisleData(
+	public final void writeChiselData(
 			final CompoundNBT compound,
 			final boolean crossWorld )
 	{
@@ -123,7 +122,7 @@ public class NBTBlobConverter
 			return;
 		}
 
-		final int newFormat = crossWorld ? VoxelBlob.VERSION_CROSSWORLD : VoxelBlob.VERSION_COMPACT;
+		final int newFormat = crossWorld ? VoxelBlob.VERSION_CROSSWORLD : VoxelBlob.VERSION_COMPACT_PALLETED;
 		final byte[] voxelBytes = newFormat == format ? voxelRef.getByteArray() : voxelRef.getVoxelBlob().blobToBytes( newFormat );
 
 		compound.putInt( NBT_LIGHTVALUE, lightValue );
@@ -173,10 +172,10 @@ public class NBTBlobConverter
 		isNormalCube = compound.getBoolean( NBT_NORMALCUBE_FLAG );
 		byte[] v = compound.getByteArray( NBT_VERSIONED_VOXEL );
 
-		if ( v == null || v.length == 0 )
+		if (v.length == 0)
 		{
 			final byte[] vx = compound.getByteArray( NBT_LEGACY_VOXEL );
-			if ( v != null && vx.length > 0 )
+			if (vx.length > 0)
 			{
 				final VoxelBlob bx = new VoxelBlob();
 
@@ -188,8 +187,8 @@ public class NBTBlobConverter
 				{
 				}
 
-				v = bx.blobToBytes( VoxelBlob.VERSION_COMPACT );
-				format = VoxelBlob.VERSION_COMPACT;
+				v = bx.blobToBytes( VoxelBlob.VERSION_COMPACT_PALLETED );
+				format = VoxelBlob.VERSION_COMPACT_PALLETED;
 			}
 		}
 
@@ -249,7 +248,7 @@ public class NBTBlobConverter
 		{
 			final ItemStack is = new ItemStack( blk );
 			final CompoundNBT compound = ModUtil.getSubCompound( is, ModUtil.NBT_BLOCKENTITYTAG, true );
-			writeChisleData( compound, crossWorld );
+			writeChiselData( compound, crossWorld );
 
 			if ( compound.size() > 0 )
 			{

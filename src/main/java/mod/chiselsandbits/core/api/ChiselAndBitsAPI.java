@@ -13,7 +13,6 @@ import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
-import mod.chiselsandbits.client.ModItemGroup;
 import mod.chiselsandbits.client.RenderHelper;
 import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.core.ChiselsAndBits;
@@ -151,7 +150,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 			final boolean placement )
 	{
 		final BlockRayTraceResult mop = new BlockRayTraceResult(new Vector3d(hitX, hitY, hitZ), side, pos, false);
-		return new BitLocation( mop, placement ? BitOperation.PLACE : BitOperation.CHISEL );
+		return new BitLocation( mop, placement ? BitOperation.PLACE : BitOperation.CHISEL, false );
 	}
 
 	@Override
@@ -446,11 +445,11 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 			final IBakedModel model,
 			final World world,
 			final BlockPos pos,
-			final boolean isUnplaceable,
+			final ItemBlockChiseled.PlacementAttemptResult placementAttemptResult,
       final int combinedLight,
       final int combinedOverlay)
 	{
-		RenderHelper.renderGhostModel(stack, model, world, pos, isUnplaceable,combinedLight,combinedOverlay );
+		RenderHelper.renderGhostModel(stack, model, world, pos, placementAttemptResult,combinedLight,combinedOverlay );
 	}
 
 }

@@ -4,6 +4,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import com.mojang.blaze3d.vertex.MatrixApplyingVertexBuilder;
+import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.registry.ModBlocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -259,13 +260,18 @@ public class RenderHelper
       final IBakedModel baked,
       final World worldObj,
       final BlockPos blockPos,
-      final boolean isUnplaceable,
+      final ItemBlockChiseled.PlacementAttemptResult placementResult,
       final int combinedLightmap,
       final int combinedOverlay)
     {
-        final int alpha = isUnplaceable ? 0x22000000 : 0xaa000000;
+        final int alpha = !placementResult.isCanPlace() ? 0x22000000 : 0xaa000000;
+
+        final float r = !placementResult.isCanPlace() || placementResult != ItemBlockChiseled.PlacementAttemptResult.MERGEABLE ? 1f : 1f;
+        final float g = !placementResult.isCanPlace() || placementResult != ItemBlockChiseled.PlacementAttemptResult.MERGEABLE ? 1f : 0.5f;
+        final float b = !placementResult.isCanPlace() || placementResult != ItemBlockChiseled.PlacementAttemptResult.MERGEABLE ? 1f : 0f;
+
         Minecraft.getInstance().getTextureManager().bindTexture(PlayerContainer.LOCATION_BLOCKS_TEXTURE);
-        RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
+        RenderSystem.color4f(r, g, b, 1.0f);
 
         RenderSystem.enableBlend();
         RenderSystem.enableTexture();
@@ -274,6 +280,7 @@ public class RenderHelper
 
         RenderHelper.renderModel(matrixStack, baked, worldObj, blockPos, alpha, combinedLightmap, combinedOverlay);
         RenderSystem.colorMask(true, true, true, true);
+        RenderSystem.color4f(r, g, b, 1.0f);
         RenderSystem.depthFunc(GL11.GL_LEQUAL);
         RenderHelper.renderModel(matrixStack, baked, worldObj, blockPos, alpha, combinedLightmap, combinedOverlay);
 

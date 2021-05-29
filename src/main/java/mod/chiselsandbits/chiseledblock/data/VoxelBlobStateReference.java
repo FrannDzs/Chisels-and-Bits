@@ -52,7 +52,7 @@ public final class VoxelBlobStateReference implements Comparable<VoxelBlobStateR
 			if ( airBlob == null )
 			{
 				final VoxelBlob vb = new VoxelBlob();
-				airBlob = vb.blobToBytes( VoxelBlob.VERSION_COMPACT );
+				airBlob = vb.blobToBytes( VoxelBlob.VERSION_COMPACT_PALLETED );
 			}
 
 			return airBlob;
@@ -60,7 +60,7 @@ public final class VoxelBlobStateReference implements Comparable<VoxelBlobStateR
 
 		final VoxelBlob vb = new VoxelBlob();
 		vb.fill( stateId );
-		return vb.blobToBytes( VoxelBlob.VERSION_COMPACT );
+		return vb.blobToBytes( VoxelBlob.VERSION_COMPACT_PALLETED );
 	}
 
 	private static void addRef(
@@ -114,7 +114,7 @@ public final class VoxelBlobStateReference implements Comparable<VoxelBlobStateR
 			final VoxelBlob blob,
 			final long weight )
 	{
-		this( blob.blobToBytes( VoxelBlob.VERSION_COMPACT ), weight );
+		this( blob.blobToBytes( VoxelBlob.VERSION_COMPACT_PALLETED ), weight );
 		data.blob = new SoftReference<VoxelBlob>( new VoxelBlob( blob ) );
 	}
 

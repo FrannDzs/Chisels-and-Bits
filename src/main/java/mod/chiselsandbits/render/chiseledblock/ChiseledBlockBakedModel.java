@@ -10,6 +10,7 @@ import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.render.helpers.ModelQuadLayer;
 import mod.chiselsandbits.render.helpers.ModelUtil;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.model.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -29,6 +30,8 @@ import java.util.*;
 
 public class ChiseledBlockBakedModel extends BaseBakedBlockModel
 {
+    public static final ChiseledBlockBakedModel EMPTY = new ChiseledBlockBakedModel(0, ChiselRenderType.SOLID, null);
+
     private static final Random RANDOM = new Random();
 
     public static final  float       PIXELS_PER_BLOCK = 16.0f;
@@ -168,15 +171,14 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
     public ChiseledBlockBakedModel(
       final int blockReference,
       final ChiselRenderType layer,
-      final VoxelBlob data,
-      final VertexFormat format)
+      final VoxelBlob data)
     {
         myLayer = layer;
         final BlockState state = ModUtil.getStateById(blockReference);
 
         IBakedModel originalModel = null;
 
-        if (state != null)
+        if (state != null && state.getBlock() != Blocks.AIR)
         {
             originalModel = Minecraft.getInstance().getBlockRendererDispatcher().getBlockModelShapes().getModel(state);
         }

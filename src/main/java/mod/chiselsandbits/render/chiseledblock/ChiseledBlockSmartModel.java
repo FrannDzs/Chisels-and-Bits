@@ -84,7 +84,8 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ICacheCle
       final ItemStack stack,
       final ChiselRenderType layer)
     {
-        Integer blockP = 0;
+        final VoxelBlob blob = ModUtil.getBlobFromStack(stack, null);
+        Integer blockP = blob.getVoxelStats().mostCommonState;
         return getCachedModel(blockP, ModUtil.getBlobFromStack(stack, null), layer, getModelFormat(), new Random());
     }
 
@@ -107,7 +108,7 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ICacheCle
     {
         if (data == null)
         {
-            return new ChiseledBlockBakedModel(blockP, layer, null, format);
+            return new ChiseledBlockBakedModel(blockP, layer, null);
         }
 
         ChiseledBlockBakedModel out = null;
@@ -119,7 +120,7 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ICacheCle
 
         if (out == null)
         {
-            out = new ChiseledBlockBakedModel(blockP, layer, data, format);
+            out = new ChiseledBlockBakedModel(blockP, layer, data);
 
             if (out.isEmpty())
             {
@@ -230,7 +231,7 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ICacheCle
                 // :_(
             }
 
-            vdata = xx.blobToBytes(VoxelBlob.VERSION_COMPACT);
+            vdata = xx.blobToBytes(VoxelBlob.VERSION_COMPACT_PALLETED);
         }
 
         final IBakedModel[] models = new IBakedModel[ChiselRenderType.values().length];

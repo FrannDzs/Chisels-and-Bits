@@ -18,11 +18,9 @@ repositories {
         name 'LDTTeam - Modding'
         url 'https://ldtteam.jfrog.io/ldtteam/modding/'
     }
-    repositories {
-        maven {
-            name = "CurseForge"
-            url = "https://minecraft.curseforge.com/api/maven/"
-        }
+    maven {
+        name = "CurseForge"
+        url = "https://cursemaven.com/"
     }
 }
 
@@ -86,6 +84,8 @@ minecraft {
 
             // Recommended logging level for the console
             property 'forge.logging.console.level', 'info'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
 
             mods {
                 chiselsandbits {
@@ -102,6 +102,8 @@ minecraft {
 
             // Recommended logging level for the console
             property 'forge.logging.console.level', 'info'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
 
             mods {
                 chiselsandbits {
@@ -118,6 +120,8 @@ minecraft {
 
             // Recommended logging level for the console
             property 'forge.logging.console.level', 'info'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
 
             args '--all', '--output', file('src/datagen/generated/chiselsandbits'),
                     '--mod', 'chiselsandbits',
@@ -162,4 +166,7 @@ dependencies {
     apiCompile 'com.intellij:annotations:+@jar'
     compile 'com.intellij:annotations:+@jar'
     testCompile 'com.intellij:annotations:+@jar'
+
+    compile fg.deobf("curse.maven:cooking-for-blockheads-231484:3238962")
+    compile fg.deobf("curse.maven:farmers-delight-398521:3249879")
 }

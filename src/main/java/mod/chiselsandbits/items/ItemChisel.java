@@ -157,7 +157,7 @@ public class ItemChisel extends ToolItem implements IItemScrollWheel, IChiselMod
 					if ( mop != null && mop instanceof BlockRayTraceResult )
 					{
 					    final BlockRayTraceResult rayTraceResult = (BlockRayTraceResult) mop;
-						final BitLocation loc = new BitLocation( rayTraceResult, BitOperation.CHISEL );
+						final BitLocation loc = new BitLocation( rayTraceResult, BitOperation.CHISEL, false );
 						ClientSide.instance.pointAt( ChiselToolType.CHISEL, loc, hand );
 						return true;
 					}
@@ -256,7 +256,7 @@ public class ItemChisel extends ToolItem implements IItemScrollWheel, IChiselMod
 			final BlockRayTraceResult rayTraceResult,
 			final Hand hand )
 	{
-		final BitLocation location = new BitLocation(rayTraceResult, BitOperation.CHISEL );
+		final BitLocation location = new BitLocation(rayTraceResult, BitOperation.CHISEL, false );
 
 		final PacketChisel pc = new PacketChisel( BitOperation.CHISEL, location, rayTraceResult.getFace(), mode, hand );
 

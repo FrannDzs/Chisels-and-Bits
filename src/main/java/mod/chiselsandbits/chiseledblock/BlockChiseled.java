@@ -268,7 +268,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 			{
 				final VoxelBlob vb = te.getBlob();
 
-				final BitLocation bitLoc = new BitLocation( target, BitOperation.CHISEL );
+				final BitLocation bitLoc = new BitLocation( target, BitOperation.CHISEL, false );
 
 				final int itemBlock = vb.get( bitLoc.bitX, bitLoc.bitY, bitLoc.bitZ );
 				if ( itemBlock == 0 )

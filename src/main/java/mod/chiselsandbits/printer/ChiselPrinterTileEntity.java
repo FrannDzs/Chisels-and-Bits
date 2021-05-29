@@ -327,7 +327,7 @@ public class ChiselPrinterTileEntity extends TileEntity implements ITickableTile
 
         final BlockState state = c.getPrimaryBlockState();
         final ItemStack itemstack = new ItemStack(ModBlocks.convertGivenStateToChiseledBlock(state), 1 );
-        c.writeChisleData(tag, false);
+        c.writeChiselData(tag, false);
 
         itemstack.setTagInfo( ModUtil.NBT_BLOCKENTITYTAG, tag );
         return itemstack;

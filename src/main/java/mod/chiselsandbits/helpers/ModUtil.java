@@ -62,7 +62,7 @@ public class ModUtil
 	private final static Random RAND = new Random();
 	private final static float DEG_TO_RAD = 0.017453292f;
 
-	private static final SimpleInstanceCache<ItemStack, VoxelBlob> STACK_VOXEL_BLOB_SIMPLE_INSTANCE_CACHE = new SimpleInstanceCache<>(ItemStack.EMPTY, null);
+	private static final SimpleInstanceCache<CompoundNBT, VoxelBlob> STACK_VOXEL_BLOB_SIMPLE_INSTANCE_CACHE = new SimpleInstanceCache<>(new CompoundNBT(), null);
 
 	static public Direction getPlaceFace(
 			final LivingEntity placer )
@@ -409,10 +409,10 @@ public class ModUtil
 		if ( stack.hasTag() )
 		{
 		    VoxelBlob blob;
-		    if (STACK_VOXEL_BLOB_SIMPLE_INSTANCE_CACHE.needsUpdate(stack)) {
-                final NBTBlobConverter tmp = new NBTBlobConverter();
+            CompoundNBT cData = getSubCompound( stack, NBT_BLOCKENTITYTAG, false );
 
-                CompoundNBT cData = getSubCompound( stack, NBT_BLOCKENTITYTAG, false );
+            if (STACK_VOXEL_BLOB_SIMPLE_INSTANCE_CACHE.needsUpdate(cData)) {
+                final NBTBlobConverter tmp = new NBTBlobConverter();
 
                 if ( cData.size() == 0 )
                 {
@@ -421,11 +421,11 @@ public class ModUtil
 
                 tmp.readChisleData( cData, VoxelBlob.VERSION_ANY );
                 blob = tmp.getBlob();
-                STACK_VOXEL_BLOB_SIMPLE_INSTANCE_CACHE.updateCachedValue(blob);
+                STACK_VOXEL_BLOB_SIMPLE_INSTANCE_CACHE.updateCachedValue(new VoxelBlob(blob));
             }
 		    else
             {
-                blob = STACK_VOXEL_BLOB_SIMPLE_INSTANCE_CACHE.getCached();
+                blob = new VoxelBlob(STACK_VOXEL_BLOB_SIMPLE_INSTANCE_CACHE.getCached());
             }
 
 			if ( rotationPlayer != null )

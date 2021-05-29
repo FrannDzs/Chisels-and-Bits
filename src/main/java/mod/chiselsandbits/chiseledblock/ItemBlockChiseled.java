@@ -139,12 +139,12 @@ public class ItemBlockChiseled extends BlockItem implements IVoxelBlobItem, IIte
 			return true;
 		}
 
-		if ( tryPlaceBlockAt( getBlock(), stack, player, worldIn, pos, side, Hand.MAIN_HAND, hitX, hitY, hitZ, null, false ) )
+		if ( tryPlaceBlockAt( getBlock(), stack, player, worldIn, pos, side, Hand.MAIN_HAND, hitX, hitY, hitZ, null, false ).isCanPlace() )
 		{
 			return true;
 		}
 
-		return tryPlaceBlockAt( getBlock(), stack, player, worldIn, pos.offset( side ), side, Hand.MAIN_HAND, hitX, hitY, hitZ, null, false );
+		return tryPlaceBlockAt( getBlock(), stack, player, worldIn, pos.offset( side ), side, Hand.MAIN_HAND, hitX, hitY, hitZ, null, false ).isCanPlace();
 	}
 
     @Override
@@ -212,16 +212,16 @@ public class ItemBlockChiseled extends BlockItem implements IVoxelBlobItem, IIte
 	{
 		if ( offgrid )
 		{
-			final BitLocation bl = new BitLocation( new BlockRayTraceResult( new Vector3d( hitX, hitY, hitZ ), side, pos , false), BitOperation.PLACE );
-			return tryPlaceBlockAt( block, stack, player, world, bl.blockPos, side, Hand.MAIN_HAND, hitX, hitY, hitZ, new BlockPos( bl.bitX, bl.bitY, bl.bitZ ), true );
+			final BitLocation bl = new BitLocation( new BlockRayTraceResult( new Vector3d( hitX, hitY, hitZ ), side, pos , false), BitOperation.PLACE, true );
+			return tryPlaceBlockAt( block, stack, player, world, bl.blockPos, side, Hand.MAIN_HAND, hitX, hitY, hitZ, new BlockPos( bl.bitX, bl.bitY, bl.bitZ ), true ).isCanPlace();
 		}
 		else
 		{
-			return tryPlaceBlockAt( block, stack, player, world, pos, side, Hand.MAIN_HAND, hitX, hitY, hitZ, null, true );
+			return tryPlaceBlockAt( block, stack, player, world, pos, side, Hand.MAIN_HAND, hitX, hitY, hitZ, null, true ).isCanPlace();
 		}
 	}
 
-	static public boolean tryPlaceBlockAt(
+	static public PlacementAttemptResult tryPlaceBlockAt(
 			final @Nonnull Block block,
 			final @Nonnull ItemStack stack,
 			final @Nonnull PlayerEntity player,
@@ -240,7 +240,7 @@ public class ItemBlockChiseled extends BlockItem implements IVoxelBlobItem, IIte
 		// you can't place empty blocks...
 		if ( !stack.hasTag() )
 		{
-			return false;
+			return PlacementAttemptResult.FAILED;
 		}
 
 		final VoxelBlob source = ModUtil.getBlobFromStack( stack, player );
@@ -266,6 +266,8 @@ public class ItemBlockChiseled extends BlockItem implements IVoxelBlobItem, IIte
 			offset = offset.add( 0, 0, VoxelBlob.dim );
 		}
 
+		boolean mergable = false;
+
 		for ( int x = 0; x < 2; x++ )
 		{
 			for ( int y = 0; y < 2; y++ )
@@ -284,15 +286,15 @@ public class ItemBlockChiseled extends BlockItem implements IVoxelBlobItem, IIte
 						// test permissions.
 						if ( !world.isBlockModifiable( player, bp ) || bmm.isCanceled() )
 						{
-							return false;
+							return PlacementAttemptResult.FAILED;
 						}
 
-						if ( world.isAirBlock( bp ) || world.getBlockState( bp ).isReplaceable(new BlockItemUseContext(
+						if (!(world.getTileEntity(bp) instanceof TileEntityBlockChiseled) && (world.isAirBlock( bp ) || world.getBlockState( bp ).isReplaceable(new BlockItemUseContext(
 						  player,
                           hand,
                           stack,
-                          new BlockRayTraceResult(new Vector3d(hitX, hitY, hitZ), side, pos, false)
-                        )) )
+                          new BlockRayTraceResult(new Vector3d(hitX, hitY, hitZ), side, bp, false)
+                        ))) )
 						{
 							continue;
 						}
@@ -302,14 +304,19 @@ public class ItemBlockChiseled extends BlockItem implements IVoxelBlobItem, IIte
 						{
 							if ( !target.canMerge( blobs[x][y][z] ) )
 							{
-								return false;
+								return PlacementAttemptResult.FAILED;
 							}
+
+							if (!target.isEmpty(blobs[x][y][z]))
+                            {
+                                mergable = true;
+                            }
 
 							blobs[x][y][z] = blobs[x][y][z].merge( target.getBlob() );
 							continue;
 						}
 
-						return false;
+						return PlacementAttemptResult.FAILED;
 					}
 				}
 			}
@@ -361,7 +368,7 @@ public class ItemBlockChiseled extends BlockItem implements IVoxelBlobItem, IIte
 									continue;
 								}
 
-								return false;
+								return PlacementAttemptResult.FAILED;
 							}
 						}
 					}
@@ -373,7 +380,7 @@ public class ItemBlockChiseled extends BlockItem implements IVoxelBlobItem, IIte
 			}
 		}
 
-		return true;
+		return mergable ? PlacementAttemptResult.MERGEABLE : PlacementAttemptResult.PLACEABLE;
 	}
 
     @Override
@@ -476,7 +483,13 @@ public class ItemBlockChiseled extends BlockItem implements IVoxelBlobItem, IIte
                 }
             }
 
-            if (context instanceof BlockItemUseContext && !canMerge && !offgrid && !state.isReplaceable((BlockItemUseContext) context) )
+            BlockItemUseContext replacementCheckContext = context instanceof BlockItemUseContext ? (BlockItemUseContext) context : new BlockItemUseContext(context);
+            if(context.getPlayer().getEntityWorld().getBlockState(context.getPos()).getBlock() instanceof BlockChiseled)
+            {
+                replacementCheckContext = new DirectionalPlaceContext(context.getWorld(), pos, Direction.DOWN, ItemStack.EMPTY, Direction.UP);
+            }
+
+            if (!canMerge && !offgrid && !state.isReplaceable(replacementCheckContext))
             {
                 pos = pos.offset( side );
             }
@@ -505,7 +518,7 @@ public class ItemBlockChiseled extends BlockItem implements IVoxelBlobItem, IIte
                   ( DeprecationHelper.getSoundType( this.block ).getVolume() + 1.0F ) / 2.0F,
                   DeprecationHelper.getSoundType( this.block ).getPitch() * 0.8F, false );
 
-                if (!context.getPlayer().isCreative())
+                if (!context.getPlayer().isCreative() && context.getItem().getItem() instanceof ItemBlockChiseled)
                     ModUtil.adjustStackSize( context.getItem(), -1 );
 
                 return ActionResultType.SUCCESS;
@@ -516,6 +529,21 @@ public class ItemBlockChiseled extends BlockItem implements IVoxelBlobItem, IIte
         else
         {
             return ActionResultType.FAIL;
+        }
+    }
+
+    public enum PlacementAttemptResult {
+	    FAILED(false),
+        MERGEABLE(true),
+        PLACEABLE(true);
+
+	    private final boolean canPlace;
+
+        PlacementAttemptResult(final boolean canPlace) {this.canPlace = canPlace;}
+
+        public boolean isCanPlace()
+        {
+            return canPlace;
         }
     }
 }

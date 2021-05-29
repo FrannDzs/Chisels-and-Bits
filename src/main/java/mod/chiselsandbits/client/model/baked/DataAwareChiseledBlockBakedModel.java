@@ -2,6 +2,7 @@ package mod.chiselsandbits.client.model.baked;
 
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
+import mod.chiselsandbits.chiseledblock.data.VoxelType;
 import mod.chiselsandbits.render.ModelCombined;
 import mod.chiselsandbits.render.NullBakedModel;
 import mod.chiselsandbits.render.chiseledblock.ChiselRenderType;
@@ -21,8 +22,11 @@ import net.minecraftforge.client.model.data.ModelDataMap;
 import net.minecraftforge.client.model.data.ModelProperty;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class DataAwareChiseledBlockBakedModel extends BaseSmartModel
 {
@@ -120,24 +124,24 @@ public class DataAwareChiseledBlockBakedModel extends BaseSmartModel
     public IBakedModel func_239290_a_(
       final IBakedModel originalModel, final ItemStack stack, final World world, final LivingEntity entity)
     {
-        final ChiseledBlockBakedModel a = ChiseledBlockSmartModel.getCachedModel(
-          stack,
-          ChiselRenderType.fromLayer(MinecraftForgeClient.getRenderLayer(), false));
-        final ChiseledBlockBakedModel b = ChiseledBlockSmartModel.getCachedModel(
-          stack,
-          ChiselRenderType.fromLayer(MinecraftForgeClient.getRenderLayer(), true));
+        final IBakedModel[] typedModels = Arrays.stream(VoxelType.values())
+          .map(ChiselRenderType::getRenderTypes)
+          .filter(types -> !types.isEmpty())
+          .map(types -> {
+              final IBakedModel[] models = types.stream()
+                       .map(type ->  ChiseledBlockSmartModel.getCachedModel(stack, type))
+                       .filter(model -> !model.isEmpty())
+                       .toArray(IBakedModel[]::new);
+              if (models.length == 0)
+                  return ChiseledBlockBakedModel.EMPTY;
 
-        if (a.isEmpty())
-        {
-            return b;
-        }
-        else if (b.isEmpty())
-        {
-            return a;
-        }
-        else
-        {
-            return new ModelCombined(a, b);
-        }
+              return new ModelCombined(models);
+          })
+          .toArray(IBakedModel[]::new);
+
+        if (typedModels.length == 0)
+            return ChiseledBlockBakedModel.EMPTY;
+
+        return new ModelCombined(typedModels);
     }
 }

@@ -2,7 +2,7 @@ package mod.chiselsandbits.chiseledblock.data;
 
 public enum VoxelType
 {
-	AIR, SOLID, FLUID;
+	AIR, SOLID, FLUID, UNKNOWN;
 
 	public boolean shouldShow(
 			final VoxelType secondVoxelType )

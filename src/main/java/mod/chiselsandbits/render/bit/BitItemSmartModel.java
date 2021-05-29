@@ -1,5 +1,6 @@
 package mod.chiselsandbits.render.bit;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -14,7 +15,6 @@ import mod.chiselsandbits.render.ModelCombined;
 import mod.chiselsandbits.render.chiseledblock.ChiselRenderType;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockBakedModel;
 import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
@@ -49,14 +49,16 @@ public class BitItemSmartModel extends BaseSmartModel implements ICacheClearable
 		{
 			if ( large )
 			{
-				final VoxelBlob blob = new VoxelBlob();
-				blob.fill( stateID );
-				final IBakedModel a = new ChiseledBlockBakedModel( stateID, ChiselRenderType.SOLID, blob,  DefaultVertexFormats.BLOCK );
-				final IBakedModel b = new ChiseledBlockBakedModel( stateID, ChiselRenderType.SOLID_FLUID, blob,  DefaultVertexFormats.BLOCK );
-				final IBakedModel c = new ChiseledBlockBakedModel( stateID, ChiselRenderType.CUTOUT_MIPPED, blob, DefaultVertexFormats.BLOCK );
-				final IBakedModel d = new ChiseledBlockBakedModel( stateID, ChiselRenderType.CUTOUT, blob,  DefaultVertexFormats.BLOCK );
-				final IBakedModel e = new ChiseledBlockBakedModel( stateID, ChiselRenderType.TRANSLUCENT, blob, DefaultVertexFormats.BLOCK );
-				out = new ModelCombined( a, b, c, d, e );
+				final int workingStateId = stateID;
+				out = new ModelCombined(Arrays.stream(ChiselRenderType.values())
+                  .map(type -> {
+                      final VoxelBlob blob = new VoxelBlob();
+                      blob.fill( workingStateId );
+
+                      return new ChiseledBlockBakedModel(workingStateId, type, blob);
+                  })
+                  .filter(model -> !model.isEmpty())
+                  .toArray(IBakedModel[]::new));
 			}
 			else
 			{

@@ -398,7 +398,7 @@ public class ClientSide
 
                 try
                 {
-                    final BitLocation bl = new BitLocation(rayTraceResult, BitOperation.CHISEL);
+                    final BitLocation bl = new BitLocation(rayTraceResult, BitOperation.CHISEL, false);
                     final IBitAccess access = ChiselsAndBits.getApi().getBitAccess(mc.world, bl.getBlockPos());
                     final IBitBrush brush = access.getBitAt(bl.getBitX(), bl.getBitY(), bl.getBitZ());
                     final ItemStack is = brush.getItemStack(1);
@@ -721,7 +721,7 @@ public class ClientSide
             if (mop != null && mop.getType() == RayTraceResult.Type.BLOCK)
             {
                 final BlockRayTraceResult blockRayTraceResult = (BlockRayTraceResult) mop;
-                final BitLocation location = new BitLocation(blockRayTraceResult, BitOperation.CHISEL);
+                final BitLocation location = new BitLocation(blockRayTraceResult, BitOperation.CHISEL, false);
                 if (theWorld.getWorldBorder().contains(location.blockPos))
                 {
                     final BitLocation other = getStartPos();
@@ -787,7 +787,7 @@ public class ClientSide
                 if (mop.getType() == RayTraceResult.Type.BLOCK)
                 {
                     final BlockRayTraceResult rayTraceResult = (BlockRayTraceResult) mop;
-                    final BitLocation location = new BitLocation(rayTraceResult, getLastBitOperation(player, lastHand, getPlayer().getHeldItem(lastHand)));
+                    final BitLocation location = new BitLocation(rayTraceResult, getLastBitOperation(player, lastHand, getPlayer().getHeldItem(lastHand)), false);
                     if (theWorld.getWorldBorder().contains(location.blockPos))
                     {
                         // this logic originated in the vanilla bounding box...
@@ -1071,7 +1071,7 @@ public class ClientSide
 
         if (ClientSide.offGridPlacement(player))
         {
-            final BitLocation bl = new BitLocation(mop, BitOperation.PLACE);
+            final BitLocation bl = new BitLocation(mop, BitOperation.PLACE, false); //The placement offset here needs to be used due to host location handling.
             showGhost(matrixStack, currentItem, item, bl.blockPos, player, rotations, x, y, z, mop.getFace(), new BlockPos(bl.bitX, bl.bitY, bl.bitZ), null);
         }
         else
@@ -1125,9 +1125,9 @@ public class ClientSide
     private Object     previousModel;
     private Object     previousCacheRef;
     private IntegerBox modelBounds;
-    private boolean    isVisible     = true;
-    private boolean    isUnplaceable = true;
-    private BlockPos   lastPartial;
+    private boolean                                  isVisible       = true;
+    private ItemBlockChiseled.PlacementAttemptResult placementResult = ItemBlockChiseled.PlacementAttemptResult.PLACEABLE;
+    private BlockPos                                 lastPartial;
     private BlockPos   lastPos;
     int displayStatus = 0;
 
@@ -1225,7 +1225,7 @@ public class ClientSide
                 {
                     isVisible = true;
                     //TODO: Figure out the hitvector here. Might need to pass that down stream.
-                    isUnplaceable = !ItemBlockChiseled.tryPlaceBlockAt(blk, item, player, player.getEntityWorld(), blockPos, side, Hand.MAIN_HAND, 0.5, 0.5, 0.5, partial, false);
+                    placementResult = ItemBlockChiseled.tryPlaceBlockAt(blk, item, player, player.getEntityWorld(), blockPos, side, Hand.MAIN_HAND, Minecraft.getInstance().objectMouseOver.getHitVec().getX(), Minecraft.getInstance().objectMouseOver.getHitVec().getY(), Minecraft.getInstance().objectMouseOver.getHitVec().getZ(), partial, false);
                 }
             }
         }
@@ -1244,7 +1244,7 @@ public class ClientSide
             matrixStack.translate(t.getX() * fullScale, t.getY() * fullScale, t.getZ() * fullScale);
         }
 
-        RenderHelper.renderGhostModel(matrixStack, baked, player.getEntityWorld(), blockPos, isUnplaceable, WorldRenderer.getCombinedLight(player.getEntityWorld(), blockPos),
+        RenderHelper.renderGhostModel(matrixStack, baked, player.getEntityWorld(), blockPos, placementResult, WorldRenderer.getCombinedLight(player.getEntityWorld(), blockPos),
           OverlayTexture.NO_OVERLAY);
 
         matrixStack.pop();
